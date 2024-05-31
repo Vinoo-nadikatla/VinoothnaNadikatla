@@ -1,5 +1,4 @@
-# VinoothnaNadikatla
-**Rock Paper Scissors Game**
+# Rock Paper Scissors Game
 **Overview**
 This project is a Python implementation of the classic Rock Paper Scissors game. It offers an interactive command-line interface for the user to play against the computer. The program tracks the score, handles input validation, and allows the player to end the game gracefully.
 
