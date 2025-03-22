@@ -1,70 +1,47 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
+from flask import Flask, render_template, request, session
 import random
 
+rps = Flask(__name__)
+rps.secret_key = "supersecretkey"  # Needed for session management
 
-# In[3]:
+@rps.route('/')
+def index():
+    # Initialize scores in session if they don't exist
+    if "player_score" not in session:
+        session["player_score"] = 0
+    if "cpu_score" not in session:
+        session["cpu_score"] = 0
+    return render_template('index.html')
 
+@rps.route('/play', methods=['POST'])
+def play():
+    choices = ['Rock', 'Paper', 'Scissors']
+    computer = random.choice(choices)
+    player = request.form['choice'].capitalize()
 
-#rock paper scissors game
-select = ['Rock', 'Paper', 'Scissors']
-player = False
-player_score = 0
-cpu_score = 0
-while True:
-    computer = random.choice(select)
-    player = input("Rock, Paper or Scissors? (or 'End'): ").capitalize()
-    
+    if player not in choices and player != "End":
+        return "Invalid choice. Please enter 'Rock', 'Paper', or 'Scissors'."
+
+    # Handle end condition
+    if player == "End":
+        final_score = f"Final Score:<br>Computer Score: {session['cpu_score']}<br>Player Score: {session['player_score']}"
+        session["player_score"] = 0
+        session["cpu_score"] = 0
+        return final_score
+
+    # Determine winner
     if player == computer:
-        print("Tie")
-    elif player == 'Rock':
-        if computer == 'Paper':
-            print("You lose", computer, "covers", player)
-            cpu_score +=1
-        else:
-            print("you win", player, "smash", computer)
-            player_score +=1
-    elif player == 'Paper':
-        if computer == 'Scissors':
-            print("you lose", computer, "cuts", player)
-            cpu_score +=1
-        else:
-            print("you win", player, "covers", computer)
-            player_score +=1
-    elif player == 'Scissors':
-        if computer == 'Rock':
-            print("you lose", computer, "smash", player)
-            cpu_score +=1
-        else:
-            print("you win", player, "cuts", computer)
-            player_score +=1
-    elif player == 'End':
-        print("Final score:")
-        print(f"computer score is {cpu_score}")
-        print(f"player score is {player_score}")
-        break
+        result = "It's a Tie!"
+    elif (player == "Rock" and computer == "Scissors") or \
+         (player == "Paper" and computer == "Rock") or \
+         (player == "Scissors" and computer == "Paper"):
+        result = "You win!"
+        session["player_score"] += 1
     else:
-        print("play again")
+        result = "You lose!"
+        session["cpu_score"] += 1
 
+    return f"Computer chose: {computer}<br>{result}<br>Computer Score: {session['cpu_score']}<br>Player Score: {session['player_score']}"
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
+if __name__ == '__main__':
+    rps.run(debug=True)
